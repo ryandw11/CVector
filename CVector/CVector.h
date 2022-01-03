@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 /**
 	A macro to create the struct type for a vector.
@@ -59,6 +60,43 @@ void CVec_Add_##TYPE(Vector_##TYPE* vec, ##TYPE valueToAdd) {\
 	}\
 	vec->buffer[vec->count] = valueToAdd;\
 	vec->count++;\
+}
+
+#define CVector_Func_Add_All(TYPE) \
+void CVec_Add_All_##TYPE(Vector_##TYPE* vec, int count, ...) {\
+	va_list args;\
+	int i;\
+	va_start(args, count);\
+	for (i = 0; i < count; i++) {\
+		CVec_Add_##TYPE(vec, va_arg(args, TYPE));\
+	}\
+	va_end(args);\
+}
+
+#define CVector_Func_Add_Array(TYPE) \
+void CVec_Add_Array_##TYPE(Vector_##TYPE* vec, TYPE* arr, int count) {\
+	CVec_Resize_##TYPE(vec, ((int)((vec->count + count) / 10) + 1) * 10);\
+	memcpy(vec->buffer + vec->count, arr, sizeof(TYPE) * count);\
+	vec->count += count;\
+}
+
+#define CVector_Func_Add_Vector(TYPE) \
+void CVec_Add_Vector_##TYPE(Vector_##TYPE* vec, Vector_##TYPE* vecToAdd) {\
+	CVec_Resize_##TYPE(vec, ((int)((vec->count + vecToAdd->count) / 10) + 1) * 10);\
+	memcpy(vec->buffer + vec->count, vecToAdd->buffer, sizeof(TYPE) * vecToAdd->count);\
+	vec->count += vecToAdd->count;\
+}
+
+#define CVector_Func_Insert(TYPE) \
+TYPE CVec_Insert_##TYPE(Vector(TYPE)* vec, size_t index, TYPE value) {\
+	if (index < 0 || index > vec->count) return 0;\
+	if (vec->count >= vec->bufferSize) {\
+		CVec_Resize_##TYPE(vec, vec->bufferSize + vec->bufferAmount);\
+	}\
+	memcpy(vec->buffer + index + 1, vec->buffer + index, sizeof(TYPE) * (vec->count - index));\
+	vec->buffer[index] = value;\
+	vec->count++;\
+	return 1;\
 }
 
 #define CVector_Func_Pop(TYPE) \
@@ -130,21 +168,21 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 
 	@param TYPE The type of vector to create.
 */
-#define InitializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
+#define InitializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
 #elif defined CVEC_CAMMELCASE
 /**
 	This macro will insert in the vector's struct and its helper functions for the specified type.
 
 	@param TYPE The type of vector to create.
 */
-#define initializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
+#define initializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
 #else
 /**
 	This macro will insert in the vector's struct and its helper functions for the specified type.
 
 	@param TYPE The type of vector to create.
 */
-#define Initialize_Vector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
+#define Initialize_Vector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
 #endif
 
 
@@ -189,7 +227,48 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 	@param VEC The vector to add to.
 	@param VALUE The value that should be added.
 */
-#define CVecAdd(TYPE, VEC, VALUE) CVec_Add_##TYPE(VEC, VALUE);
+#define CVecAdd(TYPE, VEC, VALUE) CVec_Add_##TYPE(VEC, VALUE)
+
+/**
+	Add a list of items to a vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param COUNT The number of items to add.
+	@param __VA_ARGS__ The list of items to add (must be the same amount as specified by the count argument).
+*/
+#define CVecAddAll(TYPE, VEC, COUNT, ...) CVec_Add_All_##TYPE(VEC, COUNT, __VA_ARGS__)
+
+/**
+	Add an entire array to a vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param ARRAY The array to add. (Not Mutated)
+	@param SIZE The size of the array.
+*/
+#define CVecAddArray(TYPE, VEC, ARRAY, SIZE) CVec_Add_Array_##TYPE(VEC, ARRAY, SIZE)
+
+/**
+	Add an entire vector to another vector.
+
+	@param TYPE The type of both Vectors.
+	@param VEC The base vector that will be added to.
+	@param ADD_VEC The vector which all of its items will be copied into VEC. (Not Mutated)
+*/
+#define CVecAddVector(TYPE, VEC, ADD_VEC) CVec_Add_Vector_##TYPE(VEC, ADD_VEC)
+
+/**
+	Insert an item into the vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param INDEX The index to insert the item at.
+	@param VALUE The value to insert into the Vector.
+
+	@returns 0 if fail, 1 is success.
+*/
+#define CVecInsert(TYPE, VEC, INDEX, VALUE) CVec_Insert_##TYPE(VEC, INDEX, VALUE)
 
 /**
 	Remove an item from the end of the vector.
@@ -292,7 +371,48 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 	@param VEC The vector to add to.
 	@param VALUE The value that should be added.
 */
-#define cVecAdd(TYPE, VEC, VALUE) CVec_Add_##TYPE(VEC, VALUE);
+#define cVecAdd(TYPE, VEC, VALUE) CVec_Add_##TYPE(VEC, VALUE)
+
+/**
+	Add a list of items to a vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param COUNT The number of items to add.
+	@param __VA_ARGS__ The list of items to add (must be the same amount as specified by the count argument).
+*/
+#define cVecAddAll(TYPE, VEC, COUNT, ...) CVec_Add_All_##TYPE(VEC, COUNT, __VA_ARGS__)
+
+/**
+	Add an entire array to a vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param ARRAY The array to add. (Not Mutated)
+	@param SIZE The size of the array.
+*/
+#define cVecAddArray(TYPE, VEC, ARRAY, SIZE) CVec_Add_Array_##TYPE(VEC, ARRAY, SIZE)
+
+/**
+	Add an entire vector to another vector.
+
+	@param TYPE The type of both Vectors.
+	@param VEC The base vector that will be added to.
+	@param ADD_VEC The vector which all of its items will be copied into VEC. (Not Mutated)
+*/
+#define cVecAddVector(TYPE, VEC, ADD_VEC) CVec_Add_Vector_##TYPE(VEC, ADD_VEC)
+
+/**
+	Insert an item into the vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param INDEX The index to insert the item at.
+	@param VALUE The value to insert into the Vector.
+
+	@returns 0 if fail, 1 is success.
+*/
+#define cVecInsert(TYPE, VEC, INDEX, VALUE) CVec_Insert_##TYPE(VEC, INDEX, VALUE)
 
 /**
 	Remove an item from the end of the vector.
@@ -395,7 +515,48 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 	@param VEC The vector to add to.
 	@param VALUE The value that should be added.
 */
-#define CVec_Add(TYPE, VEC, VALUE) CVec_Add_##TYPE(VEC, VALUE);
+#define CVec_Add(TYPE, VEC, VALUE) CVec_Add_##TYPE(VEC, VALUE)
+
+/**
+	Add a list of items to a vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param COUNT The number of items to add.
+	@param __VA_ARGS__ The list of items to add (must be the same amount as specified by the count argument).
+*/
+#define CVec_Add_All(TYPE, VEC, COUNT, ...) CVec_Add_All_##TYPE(VEC, COUNT, __VA_ARGS__)
+
+/**
+	Add an entire array to a vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param ARRAY The array to add. (Not Mutated)
+	@param SIZE The size of the array.
+*/
+#define CVec_Add_Array(TYPE, VEC, ARRAY, SIZE) CVec_Add_Array_##TYPE(VEC, ARRAY, SIZE)
+
+/**
+	Add an entire vector to another vector.
+
+	@param TYPE The type of both Vectors.
+	@param VEC The base vector that will be added to.
+	@param ADD_VEC The vector which all of its items will be copied into VEC. (Not Mutated)
+*/
+#define CVec_Add_Vector(TYPE, VEC, ADD_VEC) CVec_Add_Vector_##TYPE(VEC, ADD_VEC)
+
+/**
+	Insert an item into the vector.
+
+	@param TYPE The type of Vector.
+	@param VEC The vector to add to.
+	@param INDEX The index to insert the item at.
+	@param VALUE The value to insert into the Vector.
+
+	@returns 0 if fail, 1 is success.
+*/
+#define CVec_Insert(TYPE, VEC, INDEX, VALUE) CVec_Insert_##TYPE(VEC, INDEX, VALUE)
 
 /**
 	Remove an item from the end of the vector.

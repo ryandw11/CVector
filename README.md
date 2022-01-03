@@ -15,7 +15,7 @@ InitializeVector(float)
 
 That will create the struct and functions needed to use the vector for those data types. The struct is name `Vector_(type)`, so for an int vector: `Vector_int`. You can also use the `Vector(int)` macro.  
   
-The functions are labeled in a similar format: `CVec_[Operation]_[type]()`. Valid operations are: `Resize`, `Add`, `Pop`, `Remove`, `Get`, `Free`, and `Print_Primitive`. The only function that does not follow this format is the one used to create the vector struct for use: `CreateVector_[type]()`.  
+The functions are labeled in a similar format: `CVec_[Operation]_[type]()`. Valid operations are: `Resize`, `Add`, `Add_All`, `Add_Array`, `Add_Vector`, `Insert`, `Pop`, `Remove`, `Get`, `Free`, and `Print_Primitive`. The only function that does not follow this format is the one used to create the vector struct for use: `CreateVector_[type]()`.  
   
 There are also macros to simplify the functions. They have the following format: `CVec_[Operation]([type], ...)`. **Note:** The helper macros can be disabled by putting `#define CVEC_NO_MACRO` before the inclusion of the header file. You can also define the naming convention used by defining a macro before the inclusion of the header file. The options are: `#define CVEC_UPPERCASE` and `#define CVEC_CAMMELCASE`, which will format the macros as `CVec[Operation]` and `cVec[Operation]` respectively. Not including either definitions will default to the underscore format shown above.
 
