@@ -11,6 +11,10 @@
 #ifndef CVector_H
 #define CVector_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 /**
 	A macro to create the struct type for a vector.
 

@@ -6,8 +6,8 @@
 #include "CVector.h"
 
 
-InitializeVector(int)
-InitializeVector(float)
+InitializeVector(int);
+InitializeVector(float);
 
 int main(char** args, int argv) {
 
