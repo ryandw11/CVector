@@ -48,19 +48,20 @@ int main(char** args, int argv) {
 
 	printf("Vector Add All Test:");
 	CVecPrintPrimitive(int, &vec, " %d ");
-	Vector(int) intVec = CreateVector(int);
-	CVecAdd(int, &intVec, 20);
-	CVecAdd(int, &intVec, 10);
-	CVecPrintPrimitive(int, &intVec, " %d ");
-	CVecAddVector(int, &intVec, &vec);
-	CVecPrintPrimitive(int, &intVec, " %d ");
+	Vector(int)* intVec = MallocVector(int);
+	CVecAdd(int, intVec, 20);
+	CVecAdd(int, intVec, 10);
+	CVecPrintPrimitive(int, intVec, " %d ");
+	CVecAddVector(int, intVec, &vec);
+	CVecPrintPrimitive(int, intVec, " %d ");
 
 	int testArr[] = {-23, -43, -3, 4};
-	CVecAddArray(int, &intVec, testArr, 4);
-	CVecPrintPrimitive(int, &intVec, " %d ");
+	CVecAddArray(int, intVec, testArr, 4);
+	CVecPrintPrimitive(int, intVec, " %d ");
 
 	CVecFree(int, &vec);
-	CVecFree(int, &intVec);
+	CVecFree(int, intVec);
+	free(intVec);
 
 	return 0;
 }

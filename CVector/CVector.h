@@ -37,8 +37,19 @@ Vector_##TYPE CreateVector_##TYPE() {\
 	vec.count = 0;\
 	vec.bufferSize = 10;\
 	vec.bufferAmount = 10;\
-	vec.buffer = (int*)malloc(sizeof(int) * 10);\
-	memset(vec.buffer, 0, sizeof(int) * 10);\
+	vec.buffer = (TYPE*)malloc(sizeof(TYPE) * 10);\
+	memset(vec.buffer, 0, sizeof(TYPE) * 10);\
+	return vec;\
+}
+
+#define CVector_Func_Create_Malloc(TYPE) \
+Vector_##TYPE* mallocCreateVector_##TYPE() {\
+	Vector_##TYPE* vec = (Vector_##TYPE*)malloc(sizeof(Vector_##TYPE));\
+	vec->count = 0;\
+	vec->bufferSize = 10;\
+	vec->bufferAmount = 10;\
+	vec->buffer = (TYPE*)malloc(sizeof(TYPE) * 10);\
+	memset(vec->buffer, 0, sizeof(TYPE) * 10);\
 	return vec;\
 }
 
@@ -168,21 +179,21 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 
 	@param TYPE The type of vector to create.
 */
-#define InitializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
+#define InitializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Create_Malloc(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
 #elif defined CVEC_CAMMELCASE
 /**
 	This macro will insert in the vector's struct and its helper functions for the specified type.
 
 	@param TYPE The type of vector to create.
 */
-#define initializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
+#define initializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Create_Malloc(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
 #else
 /**
 	This macro will insert in the vector's struct and its helper functions for the specified type.
 
 	@param TYPE The type of vector to create.
 */
-#define Initialize_Vector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
+#define Initialize_Vector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Create_Malloc(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
 #endif
 
 
@@ -208,6 +219,17 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 	@returns A struct created on the stack.
 */
 #define CreateVector(TYPE) CreateVector_##TYPE()
+
+/**
+	Allocate and create a vector of the specified type on the heap.  
+
+	Note: this must be freed using CVecFree() followed by free().
+
+	@param TYPE The type of vector to create.
+
+	@returns A pointer to the vector struct created on the heap.
+*/
+#define MallocVector(TYPE) mallocCreateVector_##TYPE()
 
 /**
 	Resize the vector to the specified size.
@@ -354,6 +376,17 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 #define createVector(TYPE) CreateVector_##TYPE()
 
 /**
+	Allocate and create a vector of the specified type on the heap.
+
+	Note: this must be freed using cVecFree() followed by free().
+
+	@param TYPE The type of vector to create.
+
+	@returns A pointer to the vector struct created on the heap.
+*/
+#define mallocVector(TYPE) mallocCreateVector_##TYPE()
+
+/**
 	Resize the vector to the specified size.
 
 	Note: If you resize the vector to be smaller than the number of items it can hold, items outside of the bounds of the resize are effectively deleted.
@@ -496,6 +529,17 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 	@returns A struct created on the stack.
 */
 #define Create_Vector(TYPE) CreateVector_##TYPE()
+
+/**
+	Allocate and create a vector of the specified type on the heap.
+
+	Note: this must be freed using CVec_Free() followed by free().
+
+	@param TYPE The type of vector to create.
+
+	@returns A pointer to the vector struct created on the heap.
+*/
+#define Malloc_Vector(TYPE) mallocCreateVector_##TYPE()
 
 /**
 	Resize the vector to the specified size.  
