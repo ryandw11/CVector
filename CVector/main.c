@@ -59,6 +59,10 @@ int main(char** args, int argv) {
 	CVecAddArray(int, intVec, testArr, 4);
 	CVecPrintPrimitive(int, intVec, " %d ");
 
+	CVEC_FOR_EACH(int, intVec, vecData,
+		printf(" %d \n", vecData);
+		);
+
 	CVecFree(int, &vec);
 	CVecFree(int, intVec);
 	free(intVec);

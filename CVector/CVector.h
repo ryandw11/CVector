@@ -180,7 +180,7 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 	@param TYPE The type of vector to create.
 */
 #define InitializeVector(TYPE) CVector_Struct(TYPE) CVector_Func_Create(TYPE) CVector_Func_Create_Malloc(TYPE) CVector_Func_Resize(TYPE) CVector_Func_Add(TYPE) CVector_Func_Add_All(TYPE) CVector_Func_Add_Array(TYPE) CVector_Func_Add_Vector(TYPE) CVector_Func_Insert(TYPE) CVector_Func_Pop(TYPE) CVector_Func_Remove(TYPE) CVector_Func_Get(TYPE) CVector_Func_Free(TYPE) CVector_Func_Print_Primitive(TYPE)
-#elif defined CVEC_CAMMELCASE
+#elif defined CVEC_CAMELCASE
 /**
 	This macro will insert in the vector's struct and its helper functions for the specified type.
 
@@ -206,6 +206,22 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 */
 
 #ifndef CVEC_NO_MACRO
+
+/**
+	Helper macro for an easy for each.
+
+	@param TYPE The type of vector to loop through.
+	@param VEC The vector to loop through.
+	@param NAME The name of the variable which contains the current item in the vector.
+*/
+#define CVEC_FOR_EACH(TYPE, VEC, NAME, INNER_CONTENT) { \
+	int cvecForEachI; \
+	for (cvecForEachI = 0; cvecForEachI < (VEC)->count; cvecForEachI++) { \
+		TYPE NAME = (VEC)->buffer[cvecForEachI]; \
+		INNER_CONTENT \
+	}\
+}
+
 
 #ifdef CVEC_UPPERCASE
 // Macro Definitions using uppercase
@@ -364,7 +380,7 @@ void CVec_Print_Primitive_##TYPE(Vector_##TYPE* vec, char* printFormat) {\
 */
 #define CVecPrintPrimitive(TYPE, VEC, FORMAT) CVec_Print_Primitive_##TYPE(VEC, FORMAT)
 
-#elif defined CVEC_CAMMELCASE
+#elif defined CVEC_CAMELCASE
 
 /**
 	Create a vector of the specified type.
