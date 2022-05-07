@@ -8,6 +8,16 @@
 InitializeVector(int);
 InitializeVector(float);
 
+void CVec_Resize_f(Vector_int* vec, int resizeTo) {
+	if(resizeTo < 0) return;
+	int* bufStart = vec->buffer;
+	vec->bufferSize = resizeTo;
+	vec->buffer = (int*)realloc(vec->buffer, sizeof(int) * vec->bufferSize);
+	if(vec->buffer == NULL) { 
+		vec->buffer = bufStart; 
+	} 
+}
+
 int main(char** args, int argv) {
 
 	Vector(int) vec = CreateVector(int);
@@ -58,7 +68,7 @@ int main(char** args, int argv) {
 	int testArr[] = {-23, -43, -3, 4};
 	CVecAddArray(int, intVec, testArr, 4);
 	CVecPrintPrimitive(int, intVec, " %d ");
-
+	printf("For Each Print: \n");
 	CVEC_FOR_EACH(int, intVec, vecData,
 		printf(" %d \n", vecData);
 		);

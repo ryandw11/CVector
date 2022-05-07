@@ -37,8 +37,7 @@ Vector_##TYPE CreateVector_##TYPE() {\
 	vec.count = 0;\
 	vec.bufferSize = 10;\
 	vec.bufferAmount = 10;\
-	vec.buffer = (TYPE*)malloc(sizeof(TYPE) * 10);\
-	memset(vec.buffer, 0, sizeof(TYPE) * 10);\
+	vec.buffer = (TYPE*)calloc(10, sizeof(TYPE));\
 	return vec;\
 }
 
@@ -48,8 +47,7 @@ Vector_##TYPE* mallocCreateVector_##TYPE() {\
 	vec->count = 0;\
 	vec->bufferSize = 10;\
 	vec->bufferAmount = 10;\
-	vec->buffer = (TYPE*)malloc(sizeof(TYPE) * 10);\
-	memset(vec->buffer, 0, sizeof(TYPE) * 10);\
+	vec->buffer = (TYPE*)calloc(10, sizeof(TYPE));\
 	return vec;\
 }
 
@@ -58,10 +56,10 @@ void CVec_Resize_##TYPE(Vector_##TYPE* vec, int resizeTo) {\
 	if(resizeTo < 0) return;\
 	TYPE* bufStart = vec->buffer;\
 	vec->bufferSize = resizeTo;\
-	vec->buffer = (TYPE*)malloc(sizeof(TYPE) * vec->bufferSize);\
-	memset(vec->buffer, 0, sizeof(TYPE)* vec->bufferSize);\
-	memcpy(vec->buffer, bufStart, sizeof(TYPE)* vec->bufferSize);\
-	free(bufStart);\
+	vec->buffer = (TYPE*)realloc(vec->buffer, sizeof(TYPE) * vec->bufferSize);\
+	if(vec->buffer == NULL) { \
+		vec->buffer = bufStart; \
+	} \
 }
 
 #define CVector_Func_Add(TYPE) \
